@@ -1,7 +1,7 @@
 //	Copyright 2012	Gordon D Mckendrick
 //	Author: Gordon D Mckendrick
 //	Collectable
-//		Golden collectable coin for points!
+//		Golden collectable star for points!
 
 package orbital.entity
 {
@@ -12,11 +12,12 @@ package orbital.entity
 	
 	import orbital.events.TickEvent;
 
+	//	Class: Collectable
 	public class Collectable extends Sprite
 	{
-		public var starImage:Bitmap;
-		public var radius:Number;
-		public var alive:Boolean;
+		public var starImage:Bitmap;	//	Bitmap graphic of the collectable
+		public var radius:Number;		//	Current radius from the planet center
+		public var isAlive:Boolean;		//	True if the star is still live, and collidable
 		
 		//	Constructor: Default
 		public function Collectable(radius:Number) 
@@ -27,6 +28,8 @@ package orbital.entity
 			else addEventListener(Event.ADDED_TO_STAGE, onInit);
 		}
 		
+		//	Function: onInit
+		//	Initialises the collectable once the stage is initialised
 		private function onInit(e:Event = null):void
 		{
 			starImage = new Resources.GRAPHIC_STAR();
@@ -35,7 +38,7 @@ package orbital.entity
 			
 			addChild(starImage);
 			
-			alive = true;
+			isAlive = true;
 			
 			starImage.x = -starImage.width / 2;
 			starImage.y = -starImage.height / 2 + radius;
@@ -44,6 +47,8 @@ package orbital.entity
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
 		}
 		
+		//	Function: onTick
+		//	Runs every tick of the main game to update the star position
 		private function onTick(e:TickEvent):void
 		{
 			rotation -= e.difficulty;
@@ -53,10 +58,11 @@ package orbital.entity
 			if ((rotation < 0) && (rotation > -45) ) {
 				radius += e.difficulty;
 			}else if (radius < 105) {
-				alive = false;
+				isAlive = false;
 				visible = false;
 			}
 			
+			//	Updates the position of this star
 			starImage.y = -starImage.height / 2 + radius;
 		}
 		

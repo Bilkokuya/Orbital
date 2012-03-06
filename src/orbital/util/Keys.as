@@ -9,11 +9,10 @@ package orbital.util
 	import flash.display.Stage;
 	import flash.events.KeyboardEvent;
 	
-	//	Final Class: Key
+	//	Class: Key
 	public final class Keys 
 	{
 		//	Public constants for easy access to keyCodes (uint)s
-		public static const SPACE:uint = 32;
 		public static const A:uint = 65;
 		public static const B:uint = 66;
 		public static const C:uint = 67;
@@ -40,10 +39,10 @@ package orbital.util
 		public static const X:uint = 88;
 		public static const Y:uint = 89;
 		public static const Z:uint = 90;
+		public static const SPACE:uint = 32;
 		
-		
-		private static var keys:Array = new Array();		//	Array of Booleans, each index is the keycode
-		private static var stageRef:Stage;	//	Reference to the stage for events
+		private static var keys:Array = new Array();	//	Array of Booleans, each index is the keycode
+		private static var stageRef:Stage;				//	Reference to the stage for events
 		
 		//	Constructor: default and NOT TO BE USED
 		public function Keys();

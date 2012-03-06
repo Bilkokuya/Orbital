@@ -60,6 +60,7 @@ package orbital
 		}
 		
 		//	Function: onInit
+		//	Initialises the game once the stage has been set up
 		private function onInit(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
@@ -130,6 +131,8 @@ package orbital
 			addEventListener(Event.ENTER_FRAME, onTickIntro);
 		}
 		
+		//	Listener: onTickIntro
+		//	Runs each tick while the game is in the main intro-menu phase of it's logic
 		private function onTickIntro(e:Event):void
 		{
 			if (secondGame) {
@@ -154,6 +157,8 @@ package orbital
 			
 		}
 		
+		//	Function: initIntro
+		//	Initialises the intro once the game starts
 		private function initIntro():void
 		{
 			introSound.play();
@@ -192,6 +197,8 @@ package orbital
 			musicChannel = music.play(0, 0, new SoundTransform(0.5));
 		}
 		
+		//	Function: newGame
+		//	Resets the positions and values of everything when the game restarts
 		private function newGame():void
 		{
 			musicChannel.stop();
@@ -233,6 +240,8 @@ package orbital
 			scoreOut.text = score.toString();
 		}
 		
+		//	Function: endGame
+		//	Runs when the game is lost - positions the game over screen
 		private function endGame():void
 		{
 			var transform:SoundTransform = new SoundTransform(0.5);
@@ -302,6 +311,8 @@ package orbital
 			secondGame = true;
 		}
 		
+		//	Listener: onTick
+		//	Runs every tick while the game is running
 		private function onTick(e:Event):void
 		{
 			var difficulty:Number = (ticker / 1200) + 1.5;
@@ -364,6 +375,8 @@ package orbital
 			}
 
 			
+			//	Run collision detection for each star
+			//	Add points when one is hit
 			for each (var star:Collectable in stars) {
 				if (star.alive){
 					if (player.height >= 30) {
@@ -379,6 +392,9 @@ package orbital
 					}
 				}
 			}
+			
+			//	Run collision detection for each bomb
+			//	End the game if any of them have been hit
 			for each (var bomb:Bomb in bombs) {
 				if (bomb.isAlive){
 					if (player.height >= 30) {
@@ -395,7 +411,6 @@ package orbital
 			}
 			
 			ticker++;
-			
 		}
 		
 		

@@ -48,7 +48,7 @@ package orbital.util
 		public static const AUDIO_STAR:Class;
 		
 		
-		//	Constructor: default
+		//	Constructor: default and NOT TO BE USED
 		public function Resources();
 		
 	}

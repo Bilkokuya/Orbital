@@ -11,12 +11,13 @@ package orbital.entity
 	import orbital.util.Resources;
 	
 	import orbital.events.TickEvent;
-
+	
+	//	Class: Bomb
 	public class Bomb extends Sprite
 	{
-		public var starImage:Bitmap;
-		public var radius:Number;
-		public var isAlive:Boolean;
+		public var starImage:Bitmap;	//	Bitmap graphic of the bomb
+		public var radius:Number;		//	Radius from the center of the planet
+		public var isAlive:Boolean;		//	True if it is alive
 		
 		//	Constructor: Default
 		public function Bomb(radius:Number) 
@@ -27,6 +28,8 @@ package orbital.entity
 			else addEventListener(Event.ADDED_TO_STAGE, onInit);
 		}
 		
+		//	Listener: onInit
+		//	Initialises the bomb once the stage exists
 		private function onInit(e:Event = null):void
 		{
 			starImage = new Resources.GRAPHIC_BOMB();
@@ -44,6 +47,8 @@ package orbital.entity
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
 		}
 		
+		//	Listener: onTick
+		//	Runs every main game tick
 		private function onTick(e:TickEvent):void
 		{
 			rotation -= 1 * e.difficulty;

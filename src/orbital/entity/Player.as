@@ -36,6 +36,7 @@ package orbital.entity
 		}
 		
 		//	Listener: onInit
+		//	Initialises the Player after being added to the stage
 		private function onInit(e:Event = null):void
 		{
 			
@@ -63,6 +64,7 @@ package orbital.entity
 		}
 		
 		//	Listener: onTick
+		//	Updates the player position and animation each frame
 		private function onTick(e:Event):void
 		{
 			animtimer++;
@@ -81,7 +83,7 @@ package orbital.entity
 				jumping = 0;
 			}
 			
-			
+			//	rotate in a more "square" pattern for visual interest
 			if (animtimer < 2) {
 				rotation += 0.5;
 			}else if (animtimer < 5){
@@ -108,10 +110,12 @@ package orbital.entity
 				}
 			}
 			
+			//	Update y position
 			y = stage.stageHeight / 2 - radius;
 		}
 		
 		//	Function: jump
+		//	Jumps the player up, if they are not already beyond their second jump
 		public function jump():void
 		{
 			if ((jumping < 1)){
@@ -127,14 +131,18 @@ package orbital.entity
 		}
 		
 		//	Function: processInputs
+		//	Helper function that alters the player movement based on the keys pressed; run each frame by onTick
 		private function processInputs():void
 		{
+			//	Jump when space is pressed
 			if (Keys.isDown(Keys.SPACE)) {
 					jump();
 			}
+			//	Go down and shrink if S is pressed
 			if (Keys.isDown(Keys.S)) {
 					speed -= 3;
 					height = 25;
+			//	Otherwise ensure the player returns to the usual size (not shrunk)
 			}else {
 				height = 50;
 			}

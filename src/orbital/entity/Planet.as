@@ -13,8 +13,8 @@ package orbital.entity
 	//	Class: planet
 	public class Planet extends Sprite
 	{
-		private var image:Bitmap;
-		public var speed:Number;
+		private var image:Bitmap;	//	The bitmap graphic of the planet itself
+		public var speed:Number;	//	The current rotation speed of the planet
 		
 		//	Constructor: default
 		public function Planet() 
@@ -25,6 +25,7 @@ package orbital.entity
 		}
 		
 		//	Listener: onInit
+		//	Initialises the planet once it's been setup on the stage
 		private function onInit(e:Event = null):void
 		{
 			image = new Resources.GRAPHIC_PLANET();
@@ -45,6 +46,7 @@ package orbital.entity
 		}
 		
 		//	Listener: onTick
+		//	Rotates the planet every tick of the game
 		private function onTick(e:Event):void
 		{
 			rotation -= speed;
