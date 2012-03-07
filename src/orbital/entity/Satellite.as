@@ -10,20 +10,21 @@ package orbital.entity
 	import flash.display.Sprite;
 	import flash.events.Event;
 	
-	import orbital.events.TickEvent;
+	import orbital.events.OrbitalEvent;
 	
 	//	Class: Satellite
 	public class Satellite extends Sprite
 	{
 		//Types
 		public static const BOMB:String = "BOMB";			//	Representing the type as a bomb that kills the player	
-		public static const COLLECTABLE:String = "STAR";	//	Representing the type as a star that gives you points
+		public static const STAR:String = "STAR";	//	Representing the type as a star that gives you points
 		
 		public var isAlive:Boolean;				//	True if the object is still live and collidable in the world
 		public var radius:Number;				//	Radius from the center of the planet
+		public var type:String;					//	Whether it's a collectable star or a bomb
 		protected var bitmap:Bitmap;			//	Bitmap graphic of this entity
 		protected var imageContainer:Sprite;	//	Contains the bitmap graphic, to allow easy (spin) rotation
-		protected var type:String;				//	Whether it's a collectable star or a bomb
+		
 		
 		protected var rotSpeed:Number;			//	Rotational speed around the planet as a whole (how fast it orbits the planet).
 		protected var spinSpeed:Number;			//	Rotational speed of the image, relative to it's own center (how fast it spins around).
@@ -31,7 +32,7 @@ package orbital.entity
 		
 		
 		//	Constructor: default
-		public function Satellite() 
+		public function Satellite(radius:Number = 0) 
 		{
 			super();
 			if (stage) onInit();
@@ -47,24 +48,23 @@ package orbital.entity
 			
 			//	Ensure variables are initialised
 			isAlive = true;
-			radius = 0;
-			rotSpeed = 0;
-			spinSpeed = 2;
-			speed = 0;
 			
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
-			stage.addEventListener(TickEvent.PLANET_TICK, onTick);
+			stage.addEventListener(OrbitalEvent.TICK_MAIN, onTick);
 		}
 		
 		//	Listener: onTick
 		//	Updates position every tick
-		private function onTick(e:TickEvent):void
+		private function onTick(e:OrbitalEvent):void
 		{
+			//	Only process the object that is alive
+			if (!isAlive) return;
+			
 			//	Update Rotation speed from the difficulty given
 			rotSpeed = -e.difficulty;
+			spinSpeed = -e.difficulty;
 			
 			//	Set the speed for getting the satellite into position
-			//	If at the start of the rotation, move the satellite out to a radius
 			if ((rotation < 0) && (rotation > -45) ) {
 				speed = e.difficulty;
 			

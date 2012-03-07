@@ -2,6 +2,8 @@
 //	Author: Gordon D Mckendrick
 //
 //	Main
+//		Controls the timing of the game through events that are dispatched
+//		Handles initialisation to do with new games etc
 
 package orbital
 {
@@ -16,43 +18,34 @@ package orbital
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.text.TextFieldAutoSize;
+	import flash.utils.ObjectInput;
+	import orbital.entity.Satellite;
 	import orbital.util.Resources;
 	
 	import orbital.entity.Player;
 	import orbital.entity.Planet;
 	import orbital.util.Keys;
-	import orbital.entity.Bomb;
-	import orbital.entity.Collectable;
-	import orbital.events.TickEvent;
+	import orbital.events.OrbitalEvent;
+	import orbital.util.SoundManager;
 
 	//	Class: main
 	public class Main extends Sprite 
 	{
-		private const volume:Number = 0;
-		
 		private var planet:Planet;
-		private var player:Player;
-		private var music:Sound;
-		private var introSound:Sound;
-		private var loseSound:Sound;
-		private var starSound:Sound;
+		private var bgStars:Shape;
 		
-		private var stars:Array;
-		private var bombs:Array;
+		private var score:int;
+		private var scoreOut:TextField;
 		
-		public var ticker:int;
-		public var score:int;
-		public var scoreOut:TextField;
-		public var title:TextField;
-		public var subtitle:TextField;
-		public var intro:Sprite;
-		public var format:TextFormat;
-		public var bg:Shape;
+		private var title:TextField;
+		private var subtitle:TextField;
+		private var intro:Sprite;
+		private var format:TextFormat;
 		
-		public var secondGame:Boolean;
-		public var ticker2:int;
+		private var tickCount:int;
+		private var secondGame:Boolean;
+		private var ticker2:int;
 		
-		public var musicChannel:SoundChannel;
 		
 		//	Constructor: default
 		public function Main():void 
@@ -65,34 +58,18 @@ package orbital
 		//	Initialises the game once the stage has been set up
 		private function onInit(e:Event = null):void 
 		{
-			removeEventListener(Event.ADDED_TO_STAGE, onInit);
-			
-			music = new Resources.AUDIO_BGMUSIC();
-			
-			
-			graphics.beginFill(0x000000);
-			graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
-			graphics.endFill();
-			
-			score = 0;
-			
-			Keys.init(stage);
 			
 			intro = new Sprite();
-			player = new Player();
+			
 			planet = new Planet();
-			stars = new Array();
 			scoreOut = new TextField();
 			title = new TextField();
 			subtitle = new TextField();
 			format = new TextFormat();
-			bombs = new Array();
-			bg = new Shape();
+			bgStars = new Shape();
 			
-			introSound = new Resources.AUDIO_INTRO();
-			loseSound = new Resources.AUDIO_LOSE();
-			starSound = new Resources.AUDIO_STAR();
-			musicChannel = new SoundChannel();
+			score = 0;
+			ticker2 = 0;
 			
 			scoreOut.x = 20;
 			scoreOut.y = 20;
@@ -116,20 +93,25 @@ package orbital
 			subtitle.setTextFormat(format);
 			subtitle.autoSize = TextFieldAutoSize.LEFT;
 			
-			bg.graphics.beginFill(0x000000);
-			bg.graphics.drawCircle(0, 0, 1);
-			bg.graphics.endFill();
-			bg.x = stage.stageWidth / 2;
-			bg.y = stage.stageHeight / 2;
+			bgStars.graphics.beginFill(0xFFFFFF);
+			bgStars.graphics.drawCircle(0, 0, 1);
+			bgStars.graphics.endFill();
+			bgStars.x = stage.stageWidth / 2;
+			bgStars.y = stage.stageHeight / 2;
 			
-			addChild(bg);
-			addChild(player);
+			addChild(bgStars);
 			addChild(planet);
 			addChild(scoreOut);
 			addChild(intro);
 			
-			ticker = 0;
+			tickCount = 0;
+			
+			SoundManager.init(stage);
+			Keys.init(stage);
 			initIntro();
+			
+			
+			removeEventListener(Event.ADDED_TO_STAGE, onInit);
 			addEventListener(Event.ENTER_FRAME, onTickIntro);
 		}
 		
@@ -163,8 +145,6 @@ package orbital
 		//	Initialises the intro once the game starts
 		private function initIntro():void
 		{
-			introSound.play(0, 0, new SoundTransform(1 * volume));
-			
 			intro.addChild(title);
 			
 			title.text = "ORBITAL";
@@ -203,30 +183,19 @@ package orbital
 		//	Resets the positions and values of everything when the game restarts
 		private function newGame():void
 		{
-			musicChannel.stop();
-			musicChannel = music.play(0, 0, new SoundTransform(0.5 * volume));
-			ticker = Math.random() * 215;
+			tickCount = Math.random() * 215;
 			score = 0;
-			for (var i:int = 0; i < stars.length; i++) {
-				var star:Collectable = stars.pop();
-				star.radius = 0;
-				removeChild(star);
-			}
-			for (var i:int = 0; i < bombs.length; i++) {
-				var bomb:Bomb = bombs.pop();
-				bomb.radius = 0;
-				removeChild(bomb);
-			}
 			
+			planet = new Planet();
+			addChild(planet);
 			
-			
-			bg.graphics.beginFill(0xDDDDFF);
+			//	Redraw the starmap background
+			bgStars.graphics.clear();
+			bgStars.graphics.beginFill(0xDDDDFF);
 			for (var i:int = 0; i < 200; i++) {
-				bg.graphics.drawCircle(((Math.random()-0.5) * stage.stageWidth*1.5), ((Math.random()-0.5) * stage.stageHeight*1.5), (Math.random()));
+				bgStars.graphics.drawCircle(((Math.random()-0.5) * stage.stageWidth*1.5), ((Math.random()-0.5) * stage.stageHeight*1.5), (Math.random()));
 			}
-			bg.graphics.endFill();
-			bg.alpha = 0.2
-			
+			bgStars.graphics.endFill();			
 			
 			planet.x = stage.stageWidth / 2;
 			planet.y = stage.stageHeight / 2;
@@ -247,24 +216,13 @@ package orbital
 		//	Runs when the game is lost - positions the game over screen
 		private function endGame():void
 		{
-			var transform:SoundTransform = new SoundTransform(0.5);
-			musicChannel.soundTransform = transform;
-			loseSound.play(0, 0, new SoundTransform(volume));
-			
 			removeEventListener(Event.ENTER_FRAME, onTick);
 			addEventListener(Event.ENTER_FRAME, onTickIntro);
+			
 			intro.visible = true;
 			
-			for (var i:int = 0; i < stars.length; i++) {
-				var star:Collectable = stars.pop();
-				star.radius = 0;
-				removeChild(star);
-			}
-			for (var i:int = 0; i < bombs.length; i++) {
-				var bomb:Bomb = bombs.pop();
-				bomb.radius = 0;
-				removeChild(bomb);
-			}
+			planet = new Planet();
+			addChild(planet);
 			
 			intro.addChild(title);
 			
@@ -318,85 +276,27 @@ package orbital
 		//	Runs every tick while the game is running
 		private function onTick(e:Event):void
 		{
-			var difficulty:Number = (ticker / 1200) + 1.5;
+			//	The difficulty of the game depends entirely on the time spent so far
+			//	Sends out the events for this logic section
+			var difficulty:Number = (tickCount / 1200) + 1.5;
+			stage.dispatchEvent(new OrbitalEvent(OrbitalEvent.TICK_MAIN, difficulty/2));
 			
-			stage.dispatchEvent(new TickEvent(TickEvent.PLANET_TICK, difficulty/2));
+			//	Constantly rotate the star background
+			bgStars.rotation += 0.1;
 			
-			bg.rotation += 0.1;
+			//	Set the score output to the new score each time
 			scoreOut.text = score.toString();
-			if ((ticker % 23) < 3) {
+			//	Make the score pulse as an animation by scaling it in and out
+			if ((tickCount % 23) < 3) {
 				scoreOut.scaleX -= 0.02;
 				scoreOut.scaleY -= 0.02;
-			}else if ((ticker % 23) < 20) {
-			}else if ((ticker % 23) < 23) {
+			}else if ((tickCount % 23) < 20) {
+			}else if ((tickCount % 23) < 23) {
 				scoreOut.scaleX += 0.02;
 				scoreOut.scaleY += 0.02;
 			}
 			
-			
-			var random:int = (Math.random() - 0.5) * 20;
-			var chance:int = (Math.random() * 100);
-			
-			
-			//spawn bombs
-			var times:int = 0;
-			
-			//spawn collectibles 
-			times = 0;
-			if (Math.abs(ticker % (30 / difficulty) + 3*random) < 0.5 ) {
-				if (chance < 1) {
-					times = 5;
-				}else if (chance < 5) {
-					times = 2;
-				}else if (chance < 70) {
-					times = 1;
-				}
-				for (var i = 0; i < times; i++){
-					var s:Collectable = new Collectable(((Math.random() - 0.5) * 50 + 125));
-					stars.push(s);
-					addChild(s);
-					s.x = stage.stageWidth / 2;
-					s.y = stage.stageHeight / 2;
-				}
-			}
-
-			
-			//	Run collision detection for each star
-			//	Add points when one is hit
-			for each (var star:Collectable in stars) {
-				if (star.isAlive){
-					if (player.height >= 30) {
-						if ((star.rotation < -180 + 10*player.scaleX) || (star.rotation > 180 - 10*player.scaleX)) {
-							if (Math.abs(star.radius - player.radius) < 10*player.scaleX){
-								score += 76;
-								star.isAlive = false;
-								star.visible = false;
-								starSound.play(0, 0, new SoundTransform(volume * 0.5));
-							}
-						}
-						
-					}
-				}
-			}
-			
-			//	Run collision detection for each bomb
-			//	End the game if any of them have been hit
-			for each (var bomb:Bomb in bombs) {
-				if (bomb.isAlive){
-					if (player.height >= 30) {
-						if ((bomb.rotation < -180 + 10*player.scaleX) || (bomb.rotation > 180 - 10*player.scaleX)) {
-							if (Math.abs(bomb.radius - player.radius) < 10*player.scaleX){
-								bomb.isAlive = false;
-								bomb.visible = false;
-								endGame();
-							}
-						}
-						
-					}
-				}
-			}
-			
-			ticker++;
+			tickCount++;
 		}
 		
 		

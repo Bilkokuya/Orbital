@@ -9,17 +9,26 @@ package orbital.events
 	import flash.events.Event;
 	
 	//	Class: TickEvent
-	public class TickEvent extends Event 
+	public class OrbitalEvent extends Event 
 	{
 		//	Event Types
-		public static const PLANET_TICK:String = "PLANET_TICK";
+		public static const TICK_MAIN:String 	= "TICK_MAIN";		//	Tick event for the main game logic
+		public static const TICK_INTRO:String 	= "TICK_INTRO";		//	Tick event for the intro screen
+		public static const TICK_END:String 	= "TICK_END";		//	Tick event for the game over screen
+		public static const HIT_BOMB:String 	= "HIT_BOMB";		//	When the player hits a bomb
+		public static const HIT_STAR:String 	= "HIT_STAR";		//	When the player hits a star
+		public static const START_INTRO:String 	= "START_INTRO";	//	Signals the start of the intro
+		public static const START_MAIN:String 	= "START_MAIN";		//	Signals the start of the game
+		public static const START_END:String 	= "START_END";		//	Signals the start of the gameover screen
+		public static const JUMP:String 		= "JUMP";			//	Signals that the player has jumped
+
 		
 		//	Event Data
 		public var difficulty:Number;	//	The current difficulty level, that affects various spawn rates through the game
-		
+		public var tickCount:Number;	//	The number of ticks that have passed since the game started
 		
 		//	Constructor: (String, Number, Boolean, Boolean)
-		public function TickEvent(type:String, difficulty:Number, bubbles:Boolean = false, cancelable:Boolean = false) 
+		public function OrbitalEvent(type:String, difficulty:Number = 1, bubbles:Boolean = false, cancelable:Boolean = false) 
 		{ 
 			this.difficulty = difficulty;
 			super(type, bubbles, cancelable);
