@@ -378,12 +378,12 @@ package orbital
 			//	Run collision detection for each star
 			//	Add points when one is hit
 			for each (var star:Collectable in stars) {
-				if (star.alive){
+				if (star.isAlive){
 					if (player.height >= 30) {
 						if ((star.rotation < -180 + 10*player.scaleX) || (star.rotation > 180 - 10*player.scaleX)) {
 							if (Math.abs(star.radius - player.radius) < 10*player.scaleX){
 								score += 76;
-								star.alive = false;
+								star.isAlive = false;
 								star.visible = false;
 								starSound.play(0, 0, new SoundTransform(0.5));
 							}
