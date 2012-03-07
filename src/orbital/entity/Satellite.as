@@ -1,6 +1,8 @@
 //	Copyright 2012	Gordon D Mckendrick
 //	Author: Gordon D Mckendrick
-//	Collidable
+//	Satellite
+//		An object that orbits the planet as a satellite.
+//		Contains simple functionality for rotating around, and spinning on the spot.
 
 package orbital.entity 
 {
@@ -10,8 +12,8 @@ package orbital.entity
 	
 	import orbital.events.TickEvent;
 	
-	//	Class: Collidable
-	public class Collidable extends Sprite
+	//	Class: Satellite
+	public class Satellite extends Sprite
 	{
 		public var isAlive:Boolean;		//	True if the object is still live and collidable in the world
 		public var radius:Number;		//	Radius from the center of the planet
@@ -22,17 +24,16 @@ package orbital.entity
 		private var speed:Number;		//	Linear speed towards the planet
 		
 		//	Constructor: default
-		public function Collidable() 
+		public function Satellite() 
 		{
 			super();
 			if (stage) onInit();
 			else addEventListener(Event.ADDED_TO_STAGE, onInit);
 		}
 		
-		
 		//	Listener: onInit
-		//	Initialises the collidable once added to the stage
-		public function onInit(e:Event = null):void
+		//	Initialises the satellite once added to the stage
+		private function onInit(e:Event = null):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
 			stage.addEventListener(TickEvent.PLANET_TICK, onTick);
@@ -40,7 +41,7 @@ package orbital.entity
 		
 		//	Listener: onTick
 		//	Updates position every tick
-		public function onTick(e:TickEvent):void
+		private function onTick(e:TickEvent):void
 		{
 			//	Update the rotation and radius
 			rotation += rotSpeed;
