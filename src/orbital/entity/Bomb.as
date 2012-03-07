@@ -6,24 +6,21 @@
 package orbital.entity
 {
 	import flash.display.Bitmap;
-	import flash.display.Sprite;
 	import flash.events.Event;
 	import orbital.util.Resources;
 	
 	import orbital.events.TickEvent;
 	
 	//	Class: Bomb
-	public class Bomb extends Sprite
+	public class Bomb extends Satellite
 	{
-		public var starImage:Bitmap;	//	Bitmap graphic of the bomb
-		public var radius:Number;		//	Radius from the center of the planet
-		public var isAlive:Boolean;		//	True if it is alive
-		
 		//	Constructor: Default
 		public function Bomb(radius:Number) 
 		{
 			super();
+			
 			this.radius = radius;
+			
 			if (stage) onInit();
 			else addEventListener(Event.ADDED_TO_STAGE, onInit);
 		}
@@ -32,16 +29,16 @@ package orbital.entity
 		//	Initialises the bomb once the stage exists
 		private function onInit(e:Event = null):void
 		{
-			starImage = new Resources.GRAPHIC_BOMB();
-			starImage.width = 25;
-			starImage.height = 25;
+			//	Initialise the bitmap image
+			bitmap = new Resources.GRAPHIC_BOMB();
+			bitmap.width = 25;
+			bitmap.height = 25;
 			
-			addChild(starImage);
-			
-			isAlive = true;
-			
-			starImage.x = -starImage.width / 2;
-			starImage.y = -starImage.height / 2 + radius;
+			imageContainer.addChild(bitmap);
+			bitmap.y = -bitmap.width / 2;
+			bitmap.x = -bitmap.width / 2;
+
+			imageContainer.x = -radius;
 			
 			stage.addEventListener(TickEvent.PLANET_TICK, onTick);
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
@@ -51,18 +48,17 @@ package orbital.entity
 		//	Runs every main game tick
 		private function onTick(e:TickEvent):void
 		{
-			rotation -= 1 * e.difficulty;
-			if ((rotation < 110) && (rotation > 0)) {
-				radius -= 1 * e.difficulty;
-			}
-			if ((rotation < 0) && (rotation > -45) ) {
-				radius += 1 * e.difficulty;
-			}else if (radius < 105) {
-				isAlive = false;
-				visible = false;
-			}
+			rotSpeed = -e.difficulty;
 			
-			starImage.y = -starImage.height / 2 + radius;
+			if ((rotation > 15) && (rotation < 60)) {
+				speed = -e.difficulty;
+			
+			}else if ((rotation < 0) && (rotation > -45) ) {
+				speed = e.difficulty;
+				
+			}else {
+				speed = 0;
+			}
 		}
 		
 	}

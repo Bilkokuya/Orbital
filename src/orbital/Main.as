@@ -28,6 +28,8 @@ package orbital
 	//	Class: main
 	public class Main extends Sprite 
 	{
+		private const volume:Number = 0;
+		
 		private var planet:Planet;
 		private var player:Player;
 		private var music:Sound;
@@ -161,7 +163,7 @@ package orbital
 		//	Initialises the intro once the game starts
 		private function initIntro():void
 		{
-			introSound.play();
+			introSound.play(0, 0, new SoundTransform(1 * volume));
 			
 			intro.addChild(title);
 			
@@ -194,7 +196,7 @@ package orbital
 			planet.scaleX = 1.5;
 			planet.scaleY = 1.5;
 			intro.addChild(planet);
-			musicChannel = music.play(0, 0, new SoundTransform(0.5));
+			
 		}
 		
 		//	Function: newGame
@@ -202,7 +204,7 @@ package orbital
 		private function newGame():void
 		{
 			musicChannel.stop();
-			musicChannel = music.play();
+			musicChannel = music.play(0, 0, new SoundTransform(0.5 * volume));
 			ticker = Math.random() * 215;
 			score = 0;
 			for (var i:int = 0; i < stars.length; i++) {
@@ -223,6 +225,7 @@ package orbital
 				bg.graphics.drawCircle(((Math.random()-0.5) * stage.stageWidth*1.5), ((Math.random()-0.5) * stage.stageHeight*1.5), (Math.random()));
 			}
 			bg.graphics.endFill();
+			bg.alpha = 0.2
 			
 			
 			planet.x = stage.stageWidth / 2;
@@ -246,7 +249,7 @@ package orbital
 		{
 			var transform:SoundTransform = new SoundTransform(0.5);
 			musicChannel.soundTransform = transform;
-			loseSound.play();
+			loseSound.play(0, 0, new SoundTransform(volume));
 			
 			removeEventListener(Event.ENTER_FRAME, onTick);
 			addEventListener(Event.ENTER_FRAME, onTickIntro);
@@ -335,25 +338,8 @@ package orbital
 			var chance:int = (Math.random() * 100);
 			
 			
-			//spaawn bombs
+			//spawn bombs
 			var times:int = 0;
-			if (Math.abs(ticker % (60 / difficulty) + random) < 0.5) {
-				if (chance < 1) {
-					times = 3;
-				}else if (chance < 5) {
-					times = 2;
-				}else if (chance < 70) {
-					times = 1;
-				}
-				for (var i = 0; i < times; i++){
-					var b:Bomb = new Bomb((Math.random()* 100 + 60));
-					bombs.push(b);
-					addChild(b);
-					b.x = stage.stageWidth / 2;
-					b.y = stage.stageHeight / 2;
-				}
-			}
-			
 			
 			//spawn collectibles 
 			times = 0;
@@ -385,7 +371,7 @@ package orbital
 								score += 76;
 								star.isAlive = false;
 								star.visible = false;
-								starSound.play(0, 0, new SoundTransform(0.5));
+								starSound.play(0, 0, new SoundTransform(volume * 0.5));
 							}
 						}
 						

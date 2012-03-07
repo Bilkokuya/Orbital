@@ -7,6 +7,8 @@
 
 package orbital.util 
 {
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 
 	//	Class: Resources
 	public final class Resources 
