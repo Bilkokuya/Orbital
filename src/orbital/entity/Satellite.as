@@ -14,17 +14,12 @@ package orbital.entity
 	
 	//	Class: Satellite
 	public class Satellite extends Sprite
-	{
-		//Types
-		public static const BOMB:String = "BOMB";			//	Representing the type as a bomb that kills the player	
-		public static const STAR:String = "STAR";	//	Representing the type as a star that gives you points
-		
+	{		
 		public var isAlive:Boolean;				//	True if the object is still live and collidable in the world
 		public var radius:Number;				//	Radius from the center of the planet
-		public var type:String;					//	Whether it's a collectable star or a bomb
+
 		protected var bitmap:Bitmap;			//	Bitmap graphic of this entity
 		protected var imageContainer:Sprite;	//	Contains the bitmap graphic, to allow easy (spin) rotation
-		
 		
 		protected var rotSpeed:Number;			//	Rotational speed around the planet as a whole (how fast it orbits the planet).
 		protected var spinSpeed:Number;			//	Rotational speed of the image, relative to it's own center (how fast it spins around).
@@ -34,6 +29,7 @@ package orbital.entity
 		//	Constructor: default
 		public function Satellite(radius:Number = 0) 
 		{
+			this.radius = radius;
 			super();
 			if (stage) onInit();
 			else addEventListener(Event.ADDED_TO_STAGE, onInit);
@@ -45,9 +41,14 @@ package orbital.entity
 		{
 			imageContainer = new Sprite();
 			addChild(imageContainer);
+			imageContainer.x = -radius;
+			imageContainer.y = 0;
 			
-			//	Ensure variables are initialised
 			isAlive = true;
+			rotation = 0;
+			speed = 0;
+			rotSpeed = 0;
+			spinSpeed = 0;
 			
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
 			stage.addEventListener(OrbitalEvent.TICK_MAIN, onTick);
@@ -97,6 +98,26 @@ package orbital.entity
 				imageContainer.rotation += spinSpeed;
 			}
 		}
+		
+		//	Function: kill
+		//	Kills all listeners for this object
+		public function kill():void
+		{
+			if(stage){
+				stage.removeEventListener(OrbitalEvent.TICK_MAIN, onTick);
+				visible = false;
+			}
+		}
+		
+		public function get isVisible():Boolean
+		{
+			if (bitmap && visible) {
+				return true;
+			}else {
+				return false;
+			}
+		}
+		
 	}
 
 }

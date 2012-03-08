@@ -28,9 +28,10 @@ package orbital.events
 		public var tickCount:Number;	//	The number of ticks that have passed since the game started
 		
 		//	Constructor: (String, Number, Boolean, Boolean)
-		public function OrbitalEvent(type:String, difficulty:Number = 1, bubbles:Boolean = false, cancelable:Boolean = false) 
+		public function OrbitalEvent(type:String, tickCount:int = 1, difficulty:Number = 1, bubbles:Boolean = false, cancelable:Boolean = false) 
 		{ 
 			this.difficulty = difficulty;
+			this.tickCount = tickCount;
 			super(type, bubbles, cancelable);
 		} 
 		

@@ -24,7 +24,7 @@ package orbital.entity
 		public var jumps:int;			//	0 none, 1 first jump, 2 second jump
 		
 		public var jumpSound:Sound;
-		public var playerImage:Bitmap;
+		public var bitmap:Bitmap;
 		
 		private var jumpTimer:int;
 		private var animTimer:Number;
@@ -43,23 +43,21 @@ package orbital.entity
 		{
 			
 			jumpSound = new Resources.AUDIO_JUMP();
-			playerImage = new Resources.GRAPHIC_PLAYER();
+			bitmap = new Resources.GRAPHIC_PLAYER();
 			
-			addChild(playerImage);
-			playerImage.width = 50;
-			playerImage.height = 50;
+			addChild(bitmap);
+			bitmap.width = 50;
+			bitmap.height = 50;
 			radius = 115;
 			
-			playerImage.x = -playerImage.width / 2;
-			playerImage.y = -playerImage.height / 2;
+			bitmap.x = -bitmap.width / 2;
+			bitmap.y = -bitmap.height / 2;
 			
 			
 			jumpTimer = 0;
 			jumps = 0;
 			speed = 0;
 			animTimer = 0;
-			y = stage.stageHeight / 2 - radius;
-			x = stage.stageWidth / 2;
 			
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
 			stage.addEventListener(OrbitalEvent.TICK_MAIN, onTick);
@@ -112,8 +110,8 @@ package orbital.entity
 				}
 			}
 			
-			//	Update y position
-			y = stage.stageHeight / 2 - radius;
+			//	Update y position so it  balances on top of the world
+			y =15*(1-scaleX) - radius;
 		}
 		
 		//	Function: jump
@@ -124,11 +122,12 @@ package orbital.entity
 				speed = 12;
 				jumps = 1;
 				jumpTimer = 5;
-				jumpSound.play(0, 0, new SoundTransform(0.7));
+				stage.dispatchEvent(new OrbitalEvent( OrbitalEvent.JUMP, 1));
+				
 			}else if ((jumps < 2) && jumpTimer==0){
 				speed = 15;
 				jumps = 2;
-				jumpSound.play(0, 0, new SoundTransform(0.5));
+				stage.dispatchEvent(new OrbitalEvent( OrbitalEvent.JUMP, 2));
 			}
 		}
 		
@@ -143,12 +142,24 @@ package orbital.entity
 			//	Go down and shrink if S is pressed
 			if (Keys.isDown(Keys.S)) {
 					speed -= 3;
-					height = 25;
+					scaleX = 0.5;
+					scaleY = 0.5;
 			//	Otherwise ensure the player returns to the usual size (not shrunk)
 			}else {
-				height = 50;
+				scaleX = 1;
+				scaleY = 1;
 			}
 			
+		}
+		
+		//	Function: kill
+		//	Kills all listeners for this object
+		public function kill():void
+		{
+			if(stage){
+				stage.removeEventListener(OrbitalEvent.TICK_MAIN, onTick);
+				visible = false;
+			}
 		}
 		
 		

@@ -37,6 +37,9 @@ package orbital.entity
 			bitmap = new Resources.GRAPHIC_PLANET();
 			satellites = new Array();
 			imageContainer = new Sprite();
+			player = new Player();
+			
+			addChild(player);
 			
 			//	Initialise the bitmap graphic
 			addChild(imageContainer);
@@ -44,7 +47,7 @@ package orbital.entity
 			bitmap.height = 250;
 			imageContainer.addChild(bitmap);
 			bitmap.x = -bitmap.width/2;
-			bitmap.y = -bitmap.height/2;
+			bitmap.y = -bitmap.height / 2;
 			
 			//	Set the initial speed and position
 			rotSpeed = 1;
@@ -53,20 +56,31 @@ package orbital.entity
 			
 			removeEventListener(Event.ADDED_TO_STAGE, onInit);
 			stage.addEventListener(OrbitalEvent.TICK_MAIN, onTick);
-			stage.addEventListener(OrbitalEvent.TICK_END, onTick);
-			stage.addEventListener(OrbitalEvent.TICK_INTRO, onTick);
+			stage.addEventListener(OrbitalEvent.TICK_END, onIntroTick);
+			stage.addEventListener(OrbitalEvent.TICK_INTRO, onIntroTick);
 		}
 		
 		
+		//	Listener: onIntroTick
+		//	Rotates the planet during the intro of the game
+		private function onIntroTick(e:OrbitalEvent):void
+		{
+			//	Update the rotation of the image
+			imageContainer.rotation -= rotSpeed;
+		}
+		
 		//	Listener: onTick
-		//	Rotates the planet every tick of the game
+		//	Performs spawning and collisions during the main game
 		private function onTick(e:OrbitalEvent):void
 		{
 			//	Spawns something every second, with a random factor (at difficulty 1)
 			var random:int = (Math.random() - 0.5) * 20;
-			if (Math.abs(e.tickCount % (30 / e.difficulty) + random) < 0.5) {
+			if (Math.abs(e.tickCount % (20 / e.difficulty) + random) < 1) {
 				spawnSatellite();
 			}
+			
+			//	Check collisions
+			checkCollisions();
 			
 			//	Update the rotation of the image
 			imageContainer.rotation -= rotSpeed;
@@ -85,19 +99,20 @@ package orbital.entity
 				spawnCount = 3;
 			}else if (chance < 5) {
 				spawnCount = 2;
-			}else if (chance < 70) {
+			}else{
 				spawnCount = 1;
 			}
 			
 			//	Spawn each new satellite
 			for (var i:int = 0; i < spawnCount; i++) {
-				var satellite:Satellite = new Satellite(Math.random() * 50 + 60);	//	Minimum radius is 60 + 45(implicit)
+				var spawnPosition:Number = (Math.random() * 100) + 50;	//	Minimum radius is 60 + 45(implicit)
+				var satellite:Satellite;
 				
 				//	Determine if it's a "bomb" or "star"
-				if (Math.random() < (1/3)) {
-					satellite.type = Satellite.BOMB;
+				if (Math.random() < (1 / 6)) {
+					satellite = new Bomb(spawnPosition);
 				}else {
-					satellite.type = Satellite.STAR;
+					satellite = new Star(spawnPosition);
 				}
 				satellites.push(satellite);
 				addChild(satellite);
@@ -107,7 +122,6 @@ package orbital.entity
 					swapChildrenAt(numChildren - 2, numChildren-1);
 				}
 			}
-			
 		}
 		
 		private function checkCollisions():void
@@ -118,23 +132,50 @@ package orbital.entity
 				if (satellite.isAlive) {
 					
 					//	If the player and satellite are at the same rotation position
-					if ((satellite.rotation < -180 + 10*player.scaleX) || (satellite.rotation > 180 - 10*player.scaleX)) {
+					if ((satellite.rotation < 103) && (satellite.rotation > 87)) {
 						
 						//	Check if they are at the same radius from the planet (a collision)
-						if (Math.abs(satellite.radius - player.radius) < 10 * player.scaleX) {
-							if (satellite.type == Satellite.STAR) {
-								stage.dispatchEvent(new OrbitalEvent(OrbitalEvent.HIT_STAR));
-							}else {
-								stage.dispatchEvent(new OrbitalEvent(OrbitalEvent.HIT_BOMB));
-							}
+						if (Math.abs(satellite.radius - player.radius) < 25) {
+							
+							removeChild(satellite);
 							satellite.isAlive = false;
 							satellite.visible = false;
-							removeChild(satellite);
+							
+							if (satellite is Star) {
+								stage.dispatchEvent(new OrbitalEvent(OrbitalEvent.HIT_STAR));
+								
+							}else if (satellite is Bomb){
+								stage.dispatchEvent(new OrbitalEvent(OrbitalEvent.HIT_BOMB));
+							}
+							
 						}
 					}
 				}
 			}
 			
+		}
+		
+		//	Function: kill
+		//	Kills all references for this object
+		public function kill():void
+		{
+			//	Ensure all listeneres are removed
+			stage.removeEventListener(OrbitalEvent.TICK_MAIN, onTick);
+			stage.removeEventListener(OrbitalEvent.TICK_END, onTick);
+			stage.removeEventListener(OrbitalEvent.TICK_INTRO, onTick);
+			
+			player.kill();
+			removeChild(player);
+			
+			//	Clear all satellites and display list children
+			for (var i:int = 0; i < satellites.length; i++){
+				satellites.pop();
+			}
+			for (var i:int = 0; i < numChildren; i++) {
+				removeChildAt(i);
+			}
+			
+			visible = false;
 		}
 		
 		
